@@ -1,0 +1,903 @@
+#/bin/ksh
+
+TODAY=$(date)
+
+clear
+
+
+# ======== Enter name function start ========
+
+gamestart() 
+
+{
+ 
+	trap "print ''" INT EXIT
+ 
+	echo $? > /dev/null 2>&1
+ 
+	read USERNAME?" Enter your name:"
+ 
+	while true
+ 
+	do
+
+		echo $USERNAME | egrep -q '[A-Za-z ]+$'
+	
+ 	if [ $? != 0 ]
+	
+ 	then
+	 
+  		echo "\nPlease, Enter valid name"
+	
+		sleep 2
+
+			clear
+	
+  		read USERNAME?" Enter your name:"
+
+	 	else
+
+	  		echo "\n $USERNAME\n"
+	
+  		read KEY?" Is your name correct? [y/n] :"
+	
+  		if [ "$KEY" = y ]
+	
+  		then
+	 
+			typeset -u NAME
+	
+			NAME=$USERNAME
+
+				banner "WELCOME" $NAME
+	
+   			break
+	
+  		else
+	 
+			sleep 2
+	
+			clear
+	
+			read USERNAME?" Enter your name:"
+
+			fi
+	
+	fi
+	
+ done
+	 cat bowler.txt | egrep $NAME
+
+	 if [ $? = 0 ]
+
+	 then
+	
+ 	echo "\n\n GOOD TO SEE YOU AGAIN \n"
+	 fi
+
+# ======== Game Start ========
+
+	
+	typeset SCORE=0
+
+	integer i=1
+	
+	while [ i -lt 10 ]
+
+	do
+		
+		echo "\n Frame $i"
+		read BALLONE?" First ball No of pin down :"
+		while [[ $BALLONE -lt 0 || $BALLONE -gt 10 ]]
+
+		do
+
+			echo "\n Please, Enter value in between 0 to 10"
+
+			read BALLONE?" First ball No of pin down :"
+
+		done
+
+		if [ $BALLONE -eq 10 ]
+
+		then
+
+			banner STRIKE
+
+			let BALLTWO=0
+
+			BALL1[i]=x
+
+			BALL2[i]=$BALLTWO
+
+		else
+			
+			if [ $BALLONE -eq 0 ]
+
+			then
+
+				banner 'GUTTER BALL'
+
+				read BALLTWO?" Second ball No of pin down :"
+
+				while [[ $BALLTWO -lt 0 || $BALLONE -gt 10 ]]
+
+				do
+
+					echo "\n please, Enter value in between 0 to 10"
+
+					read BALLTWO?" Second ball No of pin down :"
+
+				done
+
+				if [ $BALLTWO -eq 10 ]
+
+				then
+
+					banner SPARE
+
+					BALL1[i]=$BALLONE
+
+					BALL2[i]=/
+
+				else
+ 
+					if [ $BALLTWO -eq 0 ]
+
+					then
+
+						banner 'GUTTER BALL'
+
+					fi
+
+					BALL1[i]=$BALLONE
+
+					BALL2[i]=$BALLTWO
+
+					((FRAMESCORE=$BALLONE+BALLTWO))
+
+					echo "\n Ball 1 = $BALLONE"
+
+					echo " Ball 2 = $BALLTWO"
+
+					echo " Frame $i score is : $FRAMESCORE"
+
+				fi
+
+			else
+
+				((TEMP=10-$BALLONE))
+
+				read BALLTWO?" Second ball No of pin down :"
+
+				while [[ $BALLTWO -lt 0 || $BALLTWO -gt $TEMP ]]
+
+				do
+
+					echo "\n Please, Enter possible value from 0 to $TEMP "
+
+					read BALLTWO?" Second ball No of pin down :"
+
+				done
+
+				if [ $BALLTWO -eq $TEMP ]
+
+				then
+
+					banner SPARE
+
+					BALL1[i]=$BALLONE
+
+					BALL2[i]=/
+
+				else
+
+					BALL1[i]=$BALLONE
+
+					BALL2[i]=$BALLTWO
+
+					((FRAMESCORE=$BALLONE+BALLTWO))
+
+					echo "\n Ball 1 = $BALLONE"
+
+					echo " Ball 2 = $BALLTWO"
+
+					echo " Frame $i score is : $FRAMESCORE"
+
+				fi
+
+			fi
+
+		fi
+
+		if [ $i -ge 3 ]
+
+                then
+
+                        I=$i
+
+                        if [ "${BALL1[$I]}" = x ]
+
+                        then
+
+                                ((I=I-1))
+
+                                if [ "${BALL1[$I]}" = x ]
+
+                                then
+
+                                        ((I=I-1))
+
+                                        if [ "${BALL1[$I]}" = x ]
+
+                                        then
+
+                                                banner TURKEY
+
+                                        fi
+
+                                fi
+
+                        fi
+
+
+                fi
+
+	((i=i+1))
+
+	done
+
+	FRAMESCORE=0
+
+	echo "Frame 10"
+
+	read BALLONE?" First ball No of pin down :"
+
+	while [[ $BALLONE -gt 10 && $BALLONE -lt 0 ]]
+
+	do
+
+		echo "\n Please, Enter value in between 0 to 10"
+
+		read BALLONE?" First ball No of pin down :"
+
+	done
+
+	if [ $BALLONE -eq 10 ]
+
+	then
+
+		banner STRIKE
+
+		BALL1[10]=x
+
+		if [ "${BALL1[9]}" = x ]
+
+                then
+
+                        if [ "${BALL1[8]}" = x ]
+
+                        then
+               
+	                banner TURKEY
+
+                        fi
+
+                fi
+
+		read BALLTWO?" Second ball No of pin down :"
+
+		while [[ $BALLTWO -gt 10 && $BALLONE -lt 0 ]]
+
+		do
+
+			echo "\n Please, Enter value in between 0 to 10"
+
+			read BALLTWO?" Second ball No of pin down :"
+
+		done
+
+		if [ $BALLTWO -eq 10 ]
+
+		then
+
+			banner STRIKE
+
+			if [ "${BALL1[9]}" = x ]
+
+                        then
+
+                                banner TURKEY
+
+                        fi
+
+			BALL2[10]=x
+
+		else
+
+			BALL2[10]=$BALLTWO
+
+		fi
+
+
+		read BALLTHREE?" Third ball No of pin down :"
+
+		while [[ $BALLTHREE -gt 10 && $BAlLTHREE -lt 0 ]]
+
+		do
+ 
+			echo "\n Please, Enter value in between 0 to 10"
+
+			read BALLTHREE?" Third ball No of pin down :"
+
+		done
+
+	
+	if [ $BALLTHREE -eq 10 ]
+
+		then
+			
+			banner STRIKE
+
+			if [ "${BALL2[10]}" = x ]
+
+                        then
+
+                                banner TURKEY
+
+                        fi
+
+			BALL3=x
+
+		else
+
+			BALL3=$BALLTHREE
+
+		fi
+
+		FRAMESCORE=$((BALLONE+BALLTWO+BALLTHREE))
+
+                echo "\n Ball 1 = $BALLONE"
+
+                echo " Ball 2 = $BALLTWO"
+
+                echo " Ball 3 = $BALLTHREE"
+
+                echo " Frame 10 score is :  $FRAMESCORE"
+
+	else
+
+		if [ $BALLONE -eq 0 ]
+
+                then
+
+                	banner 'GUTTER BALL'
+
+		fi
+
+		TEMP=10-$BALLONE
+
+                read BALLTWO?" Second ball No of pin down :"
+
+		while [[ $BALLTWO -lt 0 || $BALLTWO -gt $TEMP ]]
+
+                do
+
+                     	echo "\n please, Enter possible value"
+
+                       	read BALLTWO?" Second ball No of pin down :"
+
+                done
+
+                if [ $BALLTWO -eq $TEMP ]
+
+                then
+
+                       	banner SPARE
+
+			read BALLTHREE?" Third ball No of pin down :"
+
+                        while [[ $BALLTHREE -gt 10 && $BAlLTHREE -lt 0 ]]
+
+                        do
+
+                                echo "\n Please, Enter possible value"
+
+                                read BALLTHREE?" Third ball No of pin down :"
+
+                        done
+
+			BALL1[10]=$BALLONE
+
+                        BALL2[10]=/
+
+			if [ $BALLTHREE -eq 10 ]
+
+			then
+
+                        	BALL3=x
+
+			else
+
+				BALL3=$BALLTHREE
+
+			fi
+
+                        ((FRAMESCORE=10+$BALLTHREE))
+
+                        echo "\n Ball 1 = $BALLONE"
+
+                        echo " Ball 2 = $BALLTWO"
+
+			echo " Ball 3 = $BALLTHREE"
+
+                        echo " Frame $i score is :  $FRAMESCORE"
+
+                else
+
+			BALL1[10]=$BALLONE
+
+                        BALL2[10]=$BALLTWO
+
+			BALL3=0
+
+                        FRAMESCORE=$((BALLONE+BALLTWO))
+
+                        echo "\n Ball 1 = $BALLONE"
+
+                        echo " Ball 2 = $BALLTWO"
+
+                        echo " Frame $i score is :  $FRAMESCORE"
+
+                fi
+
+	fi
+
+
+#======== Printing Score start ========
+
+
+	echo "\n\n"
+
+	echo "========================================="
+
+	echo "               GAME SCORE      "
+
+	echo "=========================================\n"
+
+	integer i=1
+
+	integer j=1
+
+	integer k=1
+ 
+	integer TOTAL=0
+
+	while [ $i -le 8 ]
+
+	do
+
+		if [ "${BALL1[$i]}" = x ]
+
+		then
+
+			((j=i+1))
+
+			if [ "${BALL1[$j]}" = x ]
+
+			then
+
+				((k=j+1))
+
+				if [ "${BALL1[$k]}" = x ]
+
+				then
+
+					FRAME=30
+
+				else
+
+					((FRAME=20+${BALL1[$k]}))
+
+				fi
+
+				TOTAL=$((TOTAL+FRAME))
+
+                                echo " Frame $i \n"
+
+                                echo " Ball 1 : "${BALL1[$i]}" \t Frame : $FRAME \t Game : $TOTAL \n\n"
+
+			else
+
+				if [ "${BALL2[$j]}" = / ]
+ 
+				then
+
+					FRAME=20
+
+				else
+
+					((FRAME=10+${BALL1[$j]}+${BALL2[$j]}))
+
+				fi
+
+                               	((TOTAL=$TOTAL+$FRAME))
+
+                                echo " Frame $i\n"
+
+                                echo " Ball 1 : ${BALL1[$i]} \t Frame : $FRAME \t Game : $TOTAL \n\n"
+
+			fi
+		
+else
+
+			if [ "${BALL2[$i]}" = / ]
+
+                        then
+
+                                ((j=i+1))
+
+				if [ "${BALL1[$j]}" = x ]
+
+				then
+
+                                	FRAME=20
+
+				else
+
+					((FRAME=10+${BALL1[$j]}))
+				fi
+
+                                ((TOTAL=$TOTAL+$FRAME))
+
+                                echo " Frame $i\n"
+
+				echo " Ball 1 : ${BALL1[$i]} \t Frame : $FRAME \t Game : $TOTAL "
+
+                                echo " Ball 2 : ${BALL2[$i]} \n\n"
+
+                        else
+
+                                ((FRAME=${BALL1[$i]}+${BALL2[$i]}))
+
+                                ((TOTAL=$TOTAL+$FRAME))
+
+                                echo " Frame $i\n"
+
+                                echo " Ball 1 : ${BALL1[$i]} \t Frame : $FRAME \t Game : $TOTAL "
+
+                                echo " Ball 2 : ${BALL2[$i]} \n\n"
+
+                        fi
+
+		fi
+
+		((i=i+1))
+
+	done
+
+	if [ $i -eq 9 ]
+
+	then
+
+		if [ "${BALL1[$i]}" = x ]
+
+                then
+
+                        ((j=i+1))
+
+                        if [ "${BALL1[$j]}" = x ]
+
+                        then
+
+                                if [ "${BALL2[$j]}" = x ]
+
+                                then
+
+                                        FRAME=30
+
+                                        ((TOTAL=$TOTAL+$FRAME))
+
+                                else
+
+                                        ((FRAME=20+${BALL2[$j]}))
+
+                                        ((TOTAL=$TOTAL+$FRAME))
+
+                                fi
+
+                                echo " Frame $i \n"
+
+                                echo " Ball 1 : "${BALL1[$i]}" \t Frame : $FRAME \t Game : $TOTAL \n\n"
+
+                        else
+
+				if [ "${BALL2[$j]}" = / ]
+
+				then
+
+					FRAME=20
+
+				else
+
+					((FRAME=10+${BALL1[$j]}+${BALL2[$j]}))
+
+				fi
+
+                                ((TOTAL=$TOTAL+$FRAME))
+
+                                echo " Frame $i\n"
+
+                                echo " Ball 1 : ${BALL1[$i]} \t Frame : $FRAME \t Game : $TOTAL \n\n"
+
+                        fi
+
+
+		else
+
+			if [ "${BALL2[$i]}" = / ]
+
+			then
+
+				((j=i+1))
+
+				if [ "${BALL1[$j]}" = x ]
+
+				then
+
+					FRAME=20
+
+				else
+
+					((FRAME=10+${BALL1[$j]}))
+		
+		fi
+
+				((TOTAL=$TOTAL+$FRAME))
+
+                                echo " Frame $i\n"
+
+                                echo " Ball 1 : ${BALL1[$i]} \t Frame : $FRAME \t Game : $TOTAL "
+
+                                echo " Ball 2 : ${BALL2[$i]}\n\n"
+
+			else
+
+				((FRAME=${BALL1[$i]}+${BALL2[$i]}))
+
+                                ((TOTAL=$TOTAL+$FRAME))
+
+                                echo " Frame $i\n"
+
+                                echo " Ball 1 : ${BALL1[$i]} \t Frame : $FRAME \t Game : $TOTAL "
+
+                                echo " Ball 2 : ${BALL2[$i]}\n\n"
+
+			fi
+
+		fi
+		((i=i+1))
+
+	fi
+
+	if [ $i -eq 10 ]
+
+	then
+
+		if [ "${BALL1[$i]}" = x ]
+
+                then
+
+                        if [ "${BALL2[$i]}" = x ]
+
+                        then
+
+                                if [ "$BALL3" = x ]
+
+                                then
+
+                                        FRAME=30
+
+                                        ((TOTAL=$TOTAL+$FRAME))
+
+                                else
+
+                                        ((FRAME=20+$BALL3))
+
+                                        ((TOTAL=$TOTAL+$FRAME))
+
+                                fi
+
+                                echo " Frame $i \n"
+
+                                echo " Ball 1 : ${BALL1[$i]} \t Frame : $FRAME \t Game : $TOTAL "
+
+				echo " Ball 2 : ${BALL2[$i]}"
+
+                                echo " Ball 3 : $BALL3\n\n"
+
+                        else
+
+				if [ "$BALL3" = x ]
+
+				then
+
+                                	((FRAME=20+${BALL2[$i]}))
+
+				else
+
+					((FRAME=10+${BALL2[$i]}+$BALL3))
+
+				fi
+
+                                ((TOTAL=$TOTAL+$FRAME))
+
+                                echo " Frame $i\n"
+
+                                echo " Ball 1 : ${BALL1[$i]} \t Frame : $FRAME \t Game : $TOTAL "
+
+				echo " Ball 2 : ${BALL2[$i]}"
+
+                                echo " Ball 3 : $BALL3\n\n"
+
+                        fi
+		else
+
+                        if [ "${BALL2[$i]}" = /  ]
+
+                        then
+
+				if [ $BALL3 = x ]
+
+				then
+
+                                	FRAME=20
+
+				else
+
+					((FRAME=10+$BALL3))
+
+				fi
+
+                                ((TOTAL=$TOTAL+$FRAME))
+
+                                echo " Frame $i\n"
+
+                                echo " Ball 1 : ${BALL1[$i]} \t Frame : $FRAME \t Game : $TOTAL "
+
+                                echo " Ball 2 : ${BALL2[$i]}"
+
+				echo " Ball 3 : $BALL3\n\n"
+
+                        else
+
+                                ((FRAME=${BALL1[$i]}+${BALL2[$i]}))
+
+                                ((TOTAL=$TOTAL+$FRAME))
+
+                                echo " Frame $i\n"
+
+                                echo " Ball 1 : ${BALL1[$i]} \t Frame : $FRAME \t Game : $TOTAL "
+
+                                echo " Ball 2 : ${BALL2[$i]}\n\n"
+
+                        fi
+
+                fi
+
+	fi
+
+
+# ======== Save Score Start ========
+
+
+
+	DATA=$(echo $NAME'~'${TODAY}'~'${BALL1[1]}'-'${BALL2[1]}'~'${BALL1[2]}'-'${BALL2[2]}'~'${BALL1[3]}'-'${BALL2[3]}'~'${BALL1[4]}'-'${BALL2[4]}'~'${BALL1[5]}'-'${BALL2[5]}'~'${BALL1[6]}'-'${BALL2[6]}'~'${BALL1[7]}'-'${BALL2[7]}'~'${BALL1[8]}'-'${BALL2[8]}'~'${BALL1[9]}'-'${BALL2[9]}'~'${BALL1[10]}'-'${BALL2[10]}-$BALL3'~'$TOTAL) 
+
+echo $DATA >> bowler.txt
+
+
+
+
+# ======== GAME END =========
+
+}
+
+
+
+gamehistory()
+
+{
+
+	cat bowler.txt |
+
+ 	awk 'BEGIN{print "\t\t\t\t\t\t ALL BOWLERS GAME POINT\n"
+
+    		print "==================================================================================================================\n"
+ 
+		print "Player\t   Date\t\t\t\t  F1    F2    F3    F4    F5    F6    F7    F8    F9    F10\t   TOTAL\n"}
+		{FS="~"}
+
+		{printf "%-10s %-30s %-5s %-5s %-5s %-5s %-5s %-5s %-5s %-5s %-5s %-7s %7s\n", $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13}
+	END{print "\n==================================================================================================================\n"}'
+
+}
+
+
+while true
+
+do
+
+	select CHOICE in 'Begin Game' 'Most Strike' 'Marks' 'Higest Average' 'Perfect Game' 'Exit'
+
+	do
+
+		case "$CHOICE" in
+
+
+			'Begin Game')
+
+				gamestart
+
+				gamehistory
+	
+			break ;;
+
+
+			'Most Strike')
+
+				break ;;
+
+
+			'Marks')
+
+				break ;;
+
+
+			'Higest Average')
+
+				break ;;
+
+
+			'Perfect Game')
+
+				cat bowler.txt |
+
+				awk 'BEGIN{print "\n \t\t\t\t\t\t    PERFECT GAME\n"
+
+ 				print "==================================================================================================================\n"
+
+ 				print "Player\t   Date\t\t\t\t  F1    F2    F3    F4    F5    F6    F7    F8    F9    F10\t   TOTAL\n"}
+
+ 				{FS="~"}
+
+				{ if( $13==300 )
+
+				  {
+
+ 					{printf "%-10s %-30s %-5s %-5s %-5s %-5s %-5s %-5s %-5s %-5s %-5s %-7s %7s\n", $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13}
+
+				  }
+
+				}
+
+				END{print "\n==================================================================================================================\n"}'
+
+				break ;;
+
+			'Exit')
+				exit
+				break ;;
+
+                        *)      
+				clear
+
+                                echo "\n Please, Choose valid option"
+
+                                break ;;
+
+		esac
+
+	done
+
+done
